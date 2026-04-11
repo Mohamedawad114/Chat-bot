@@ -6,3 +6,4 @@ export * from './interceptors/index';
 export * from './middlewares/index';
 export * from './Decorators/index';
 export * from './models/index';
+export *from './Utils/index'

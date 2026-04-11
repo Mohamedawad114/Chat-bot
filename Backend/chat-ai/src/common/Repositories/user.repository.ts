@@ -11,4 +11,7 @@ export class UserRepository extends BaseRepository<UserDocument> {
   ) {
     super(userModel);
   }
+  async findByEmail(email: string) {
+    return await this.findOneDocument({ email: email });
+  }
 }

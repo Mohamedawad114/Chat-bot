@@ -3,23 +3,14 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsPositive,
   IsString,
   Length,
   Matches,
-  ValidateIf,
 } from 'class-validator';
 import { IUser } from 'src/common';
-import {
-  Gender,
-  maritalStatus,
-  MilitarySituation,
-  Sys_Role,
-} from 'src/common/Enum';
+import { Gender } from 'src/common/Enum';
 import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class signupDto implements Partial<IUser> {
   @ApiProperty({
@@ -31,7 +22,7 @@ export class signupDto implements Partial<IUser> {
   @IsString()
   @Length(6, 20)
   @IsNotEmpty()
-  name: string;
+  username!: string;
 
   @ApiProperty({
     description: 'User email address',
@@ -40,7 +31,7 @@ export class signupDto implements Partial<IUser> {
   @IsString()
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  email!: string;
 
   @ApiProperty({
     description:
@@ -58,7 +49,7 @@ export class signupDto implements Partial<IUser> {
         'Password must be at least 8 characters long and include uppercase, lowercase, number and special character',
     },
   )
-  password: string;
+  password!: string;
 
   @ApiProperty({
     description: 'Phone number including country code',
@@ -69,16 +60,7 @@ export class signupDto implements Partial<IUser> {
   @IsString()
   @Length(10, 15)
   @IsNotEmpty()
-  phoneNumber: string;
-
-  @ApiPropertyOptional({
-    enum: Sys_Role,
-    description: 'System role assigned to the user',
-    default: Sys_Role.user,
-  })
-  @IsEnum(Sys_Role)
-  @IsOptional()
-  role?: Sys_Role;
+  phoneNumber!: string;
 
   @ApiProperty({
     enum: Gender,
@@ -86,7 +68,7 @@ export class signupDto implements Partial<IUser> {
     example: Gender.male,
   })
   @IsEnum(Gender)
-  gender: Gender;
+  gender!: Gender;
 
   @ApiProperty({
     type: String,
@@ -96,42 +78,5 @@ export class signupDto implements Partial<IUser> {
   })
   @IsDate()
   @Type(() => Date)
-  dateBirth: Date;
-
-  @ApiProperty({
-    enum: maritalStatus,
-    description: 'Marital status of the user',
-  })
-  @IsEnum(maritalStatus)
-  @IsNotEmpty()
-  maritalStatus: maritalStatus;
-
-  @ApiPropertyOptional({
-    enum: MilitarySituation,
-    description: 'Military status (Required only if gender is male)',
-  })
-  @ValidateIf((o) => o.gender === Gender.male)
-  @IsEnum(MilitarySituation)
-  @IsNotEmpty()
-  MilitarySituation: MilitarySituation;
-
-  @ApiPropertyOptional({
-    description: 'Brief bio about the user',
-    example: 'Backend Engineer interested in DevOps',
-    minLength: 6,
-    maxLength: 50,
-  })
-  @IsString()
-  @Length(6, 50)
-  @IsOptional()
-  bio: string;
-
-  @ApiPropertyOptional({
-    description: 'ID of the company the user belongs to',
-    example: 1,
-  })
-  @IsNumber()
-  @IsPositive()
-  @IsOptional()
-  companyId: number;
+  dateBirth!: Date;
 }

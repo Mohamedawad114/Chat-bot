@@ -4,6 +4,8 @@ import { Sys_Role } from "../Enum";
 export interface IToken {
   id:Types.ObjectId;
   username:string;
-  role:Sys_Role;
+  role?:Sys_Role;
 }
-export interface IDecodedToken extends IToken {}
+export interface IDecodedToken extends IToken {
+  jti:string
+}

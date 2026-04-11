@@ -6,16 +6,11 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import {
-  CompanyRepository,
-  CryptoService,
-  HashingService,
-  qualifyAge,
-  UserRepository,
-} from 'src/common';
-import { emailType, Sys_Role } from 'src/common/Enum';
+import { CryptoService, HashingService, UserRepository } from 'src/common';
+import { emailType, Provider } from 'src/common/Enum';
 import {
   EmailProducer,
+  OAuth2,
   redis,
   redisKeys,
   TokenServices,
@@ -31,22 +26,15 @@ export class AuthService {
     private readonly HashService: HashingService,
     private readonly TokenServices: TokenServices,
     private readonly emailQueue: EmailProducer,
-    private readonly companyRepo: CompanyRepository,
+    private readonly oAuth2: OAuth2,
   ) {}
 
   SignUp = async (data: signupDto) => {
     const checkEmail = await this.userRepo.findByEmail(data.email);
     if (checkEmail) throw new ConflictException(`email is already exist`);
-    const checkAge = qualifyAge(data.dateBirth);
-    if (!checkAge) throw new BadRequestException(`age must be greater than 16`);
     data.phoneNumber = this.crypto.encryption(data.phoneNumber);
-    if (data.companyId) {
-      const company = await this.companyRepo.findById(data.companyId);
-      if (!company) throw new NotFoundException('company not found');
-    }
     const userCreated = await this.userRepo.create({
       ...data,
-      company: data.companyId ? { connect: { id: data.companyId } } : undefined,
     });
     await this.emailQueue.sendEmailJob(
       emailType.confirmation,
@@ -54,14 +42,7 @@ export class AuthService {
     );
     return {
       message: 'signup successfully',
-      data: {
-        user: {
-          id: userCreated.id,
-          name: userCreated.name,
-          email: userCreated.email,
-          dateBirth: userCreated.dateBirth,
-        },
-      },
+      data: userCreated,
     };
   };
 
@@ -76,13 +57,16 @@ export class AuthService {
     if (!isMAtch) throw new BadRequestException(`invalid OTP`);
     User.isConfirmed = true;
     await redis.del(redisKeys.OTP(Dto.email));
-    await this.userRepo.updateById(User.id, { isConfirmed: true });
+    await this.userRepo.updateDocument(
+      { _id: User._id },
+      { isConfirmed: true },
+    );
     return { message: `email is confirmed ` };
   };
 
   resendOTP = async (Dto: ResendOtpDto) => {
     const email: string = Dto.email;
-    const User = await this.userRepo.findOne({
+    const User = await this.userRepo.findOneDocument({
       email: email,
       isConfirmed: false,
     });
@@ -107,12 +91,34 @@ export class AuthService {
     if (!passMatch) throw new BadRequestException(`invalid Password or email`);
     const { accessToken } = await this.TokenServices.generateTokens(
       {
-        id: user.id,
-        role: user.role || Sys_Role.user,
-        username: user.name,
+        id: user._id,
+        username: user.username,
       },
       res,
     );
+    return { message: 'Login successfully', data: { accessToken } };
+  };
+  signupWithGoogle = async (idToken: string,res:Response) => {
+    if (!idToken) throw new BadRequestException('idToken is required');
+    const payload = await this.oAuth2.verifyLoginGoogle(idToken);
+    if (!payload.email_verified)
+      throw new BadRequestException('email must be verified');
+    const userIsExist = await this.userRepo.findByEmail(payload.email);
+    if (userIsExist) {
+      const accessToken = this.TokenServices.generateAccessToken({
+        id: userIsExist._id,
+        username: userIsExist.username,
+      });
+      return { message: 'Login successfully', data: { accessToken } };
+    }
+    const userCreated = await this.userRepo.create({
+      email: payload.email,
+      username: payload.name,
+      isConfirmed: payload.email_verified,
+      provider: Provider.google,
+      subId: payload.sub,
+    });
+    const {accessToken}  =await this.TokenServices.generateTokens({ id: userCreated._id, username: userCreated.username }, res)
     return { message: 'Login successfully', data: { accessToken } };
   };
 
@@ -121,12 +127,12 @@ export class AuthService {
     if (!token) throw new UnauthorizedException();
     const decoded = this.TokenServices.VerifyRefreshToken(token);
     const isExisted = await redis.get(
-      redisKeys.refreshToken(decoded.id, decoded.jti),
+      redisKeys.refreshToken(decoded.id.toString(), decoded.jti),
     );
     if (!isExisted) {
       throw new ForbiddenException();
     }
-    await redis.del(redisKeys.refreshToken(decoded.id, decoded.jti));
+    await redis.del(redisKeys.refreshToken(decoded.id.toString(), decoded.jti));
     const accessToken: string = this.TokenServices.generateAccessToken({
       id: decoded.id,
       role: decoded.role,
@@ -139,7 +145,6 @@ export class AuthService {
         username: decoded.username,
       },
       res,
-      decoded.jti,
     );
     return { message: 'AccessToken', data: { accessToken } };
   };

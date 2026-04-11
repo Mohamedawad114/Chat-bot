@@ -37,6 +37,15 @@ export class AuthController {
   signup(@Body() data: signupDto) {
     return this.authServices.SignUp(data);
   }
+  @Post('signupGmail')
+  @ApiOperation({ summary: 'Create new account with email & password & phone' })
+  @ApiBody({ type: String })
+  @ApiResponse({ status: 201, description: 'signup successfully' })
+  @ApiResponse({ status: 404, description: 'company not found' })
+  @ApiResponse({ status: 400, description: 'validation error' })
+  signupGmail(@Body() idToken: string,@Res()res:Response) {
+    return this.authServices.signupWithGoogle(idToken,res);
+  }
 
   @HttpCode(200)
   @Post('login')

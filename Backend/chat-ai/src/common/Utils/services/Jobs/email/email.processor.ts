@@ -25,15 +25,6 @@ export class EmailWorker extends WorkerHost {
       case emailType.BanedUser:
         await this.emailServices.bannedUser_email(to);
         break;
-      case emailType.applicationStatus:
-        const { companyName, jobName, status } = job.data;
-        await this.emailServices.ApprovalCompany_email(
-          to,
-          companyName,
-          jobName,
-          status,
-        );
-        break;
       default:
         this.logger.warn(`Unknown job type: ${job.name}`);
         throw new Error('Unknown job type');

@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { Provider } from '../Enum';
+import { Provider, Sys_Role } from '../Enum';
 
 export interface IUser {
   _id?: Types.ObjectId;
@@ -11,4 +11,5 @@ export interface IUser {
   dateBirth?: Date;
   subId?: string;
   provider: Provider;
+  role:Sys_Role
 }

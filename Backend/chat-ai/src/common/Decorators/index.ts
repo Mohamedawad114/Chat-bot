@@ -1,2 +1,2 @@
 export * from './authUser.decorator';
-export * from './auth.decorator';
+export * from './Auth.decorator';
