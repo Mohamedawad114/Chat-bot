@@ -6,7 +6,7 @@ export class LoginDto {
   @IsString()
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @ApiProperty()
   @IsString()
@@ -14,5 +14,5 @@ export class LoginDto {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?.&-])[A-Za-z\d@$!%?.&-]{8,}$/,
   )
   @IsNotEmpty()
-  password: string;
+  password!: string;
 }

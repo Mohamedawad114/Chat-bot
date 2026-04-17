@@ -1,8 +1,8 @@
-import { CanActivate, ExecutionContext } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IUser } from '../Interfaces';
 import { Reflector } from '@nestjs/core';
-
+@Injectable()
 export class AuthorizationGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
   canActivate(

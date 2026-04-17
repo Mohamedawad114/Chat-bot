@@ -57,7 +57,7 @@ export class TokenServices {
       maxAge: 60 * 60 * 24 * 7 * 1000,
     });
   };
-  VerifyAccessToken = (Token: string) => {
+  VerifyAccessToken = (Token: string) :IDecodedToken=> {
     return this.Jwt.verify(Token);
   };
   VerifyRefreshToken = (Token: string): IDecodedToken => {

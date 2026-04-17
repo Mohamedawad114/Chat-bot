@@ -7,6 +7,7 @@ export interface Imessage {
   conversationId: Types.ObjectId;
 }
 export interface Iconversation {
+  _id?: Types.ObjectId;
   conversationName: string;
   userId: Types.ObjectId;
 }

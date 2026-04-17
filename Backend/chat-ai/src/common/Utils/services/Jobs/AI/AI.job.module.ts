@@ -1,31 +1,29 @@
-// import { Module } from '@nestjs/common';
-// import {
-//   AIReportRepository,
-//   AISkillMatchRepository,
-//   ApplicationRepository,
-// } from 'src/common/Repositories';
-// import { AIModule } from 'src/modules/AI/ai.module';
-// import { AIPAnalysisProducer } from './AI.job.producer';
-// import { CvExtractorService } from '../../pdf-parser';
-// import { AIAnalysisProcessor } from './AI.job.processor';
-// import { AIService } from 'src/modules/AI/ai.service';
-// import { BullModule } from '@nestjs/bullmq';
+import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
+import { AiModule } from 'src/modules/AI/ai.module';
+import { AIChatProducer } from './AI.job.producer';
+import { AIChatProcessor } from './AI.job.processor';
+import {
+  ConversionRepository,
+  MessageRepository,
+} from 'src/common/Repositories';
+import { conversationModel, messageModel } from 'src/common/models';
 
-// @Module({
-//   imports: [
-//     AIModule,
-//     BullModule.registerQueue({
-//       name: 'AIAnalysis',
-//     }),
-//   ],
-//   providers: [
-//     ApplicationRepository,
-//     AIPAnalysisProducer,
-//     CvExtractorService,
-//     AISkillMatchRepository,
-//     AIReportRepository,
-//     AIAnalysisProcessor,
-//   ],
-//   exports: [AIPAnalysisProducer, AIAnalysisProcessor],
-// })
-// export class AIJobModule {}
+@Module({
+  imports: [
+    AiModule,
+    BullModule.registerQueue({
+      name: 'AIChat',
+    }),
+    messageModel,
+    conversationModel,
+  ],
+  providers: [
+    AIChatProducer,
+    AIChatProcessor,
+    MessageRepository,
+    ConversionRepository,
+  ],
+  exports: [AIChatProducer],
+})
+export class AIJobModule {}

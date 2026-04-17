@@ -3,12 +3,13 @@ import { Iconversation } from '../Interfaces';
 
 import { HydratedDocument, Types } from 'mongoose';
 
-@Schema({ autoIndex: true, strict: true, strictQuery: true })
+@Schema({ autoIndex: true, strict: true, strictQuery: true, timestamps: true })
 export class Conversation implements Iconversation {
   @Prop({ type: String, required: true })
   conversationName!: string;
   @Prop({ type: Types.ObjectId, required: true })
   userId!: Types.ObjectId;
+  createdAt!: Date;
 }
 const ConversationSchema = SchemaFactory.createForClass(Conversation);
 ConversationSchema.index({ conversationName: 'text' });

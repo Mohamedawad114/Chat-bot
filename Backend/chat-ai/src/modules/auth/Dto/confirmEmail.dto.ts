@@ -12,11 +12,11 @@ export class ConfirmEmailDto {
   @IsString()
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @ApiProperty()
   @IsAlphanumeric()
   @Length(6)
   @IsNotEmpty()
-  OTP: string;
+  OTP!: string;
 }

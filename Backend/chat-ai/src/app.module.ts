@@ -13,7 +13,7 @@ import {
 } from './common';
 import { LoggerModule } from 'nestjs-pino';
 import { resolve } from 'path';
-import { AuthModule } from './modules';
+import { AiModule, AuthModule, GatewayModule, ChatModule } from './modules';
 import { BullModule } from '@nestjs/bullmq';
 
 @Module({
@@ -41,10 +41,13 @@ import { BullModule } from '@nestjs/bullmq';
       },
     }),
     BullModule.forRoot({
-      connection:redis
+      connection: redis,
     }),
     CommonModule,
     AuthModule,
+    GatewayModule,
+    ChatModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [

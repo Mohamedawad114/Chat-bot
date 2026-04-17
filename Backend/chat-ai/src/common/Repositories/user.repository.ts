@@ -2,7 +2,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { BaseRepository } from './Base.repository';
 import { User, UserDocument } from '../models';
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, ProjectionType } from 'mongoose';
 
 @Injectable()
 export class UserRepository extends BaseRepository<UserDocument> {
@@ -11,7 +11,7 @@ export class UserRepository extends BaseRepository<UserDocument> {
   ) {
     super(userModel);
   }
-  async findByEmail(email: string) {
-    return await this.findOneDocument({ email: email });
+  async findByEmail(email: string, projection?: ProjectionType<UserDocument>) {
+    return await this.findOneDocument({ email: email }, projection);
   }
 }

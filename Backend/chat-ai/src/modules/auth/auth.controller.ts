@@ -43,8 +43,8 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'signup successfully' })
   @ApiResponse({ status: 404, description: 'company not found' })
   @ApiResponse({ status: 400, description: 'validation error' })
-  signupGmail(@Body() idToken: string,@Res()res:Response) {
-    return this.authServices.signupWithGoogle(idToken,res);
+async  signupGmail(@Body() idToken: string,@Res()res:Response) {
+    return await this.authServices.signupWithGoogle(idToken,res);
   }
 
   @HttpCode(200)
@@ -59,10 +59,10 @@ export class AuthController {
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(
-    @Body() dto: LoginDto,
+    @Body() data: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return await this.authServices.loginUser(dto, res);
+    return await this.authServices.loginUser(data, res);
   }
 
   @HttpCode(200)

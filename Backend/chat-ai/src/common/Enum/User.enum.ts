@@ -1,7 +1,6 @@
 export enum Sys_Role {
   user = 'user',
-  admin = 'admin',
-  company_admin = 'company_admin',
+  assistant = 'assistant',
 }
 
 export enum Gender {
@@ -11,4 +10,9 @@ export enum Gender {
 export enum Provider {
   google = 'google',
   system = 'system',
+}
+
+export enum ChatFor{
+  socket='socket',
+  request="request"
 }

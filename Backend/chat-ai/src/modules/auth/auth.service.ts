@@ -42,10 +42,16 @@ export class AuthService {
     );
     return {
       message: 'signup successfully',
-      data: userCreated,
+      data: {
+        username: userCreated.username,
+        email: userCreated.email,
+        dataBirth: userCreated.dateBirth,
+        gender: userCreated.gender,
+        isConfirmed: userCreated.isConfirmed,
+        _id: userCreated._id,
+      },
     };
   };
-
   ConfirmEmail = async (Dto: ConfirmEmailDto) => {
     const User = await this.userRepo.findByEmail(Dto.email);
     if (!User) throw new NotFoundException(`user not found`);
@@ -77,7 +83,7 @@ export class AuthService {
 
   loginUser = async (Dto: LoginDto, res: Response) => {
     const { email, password } = Dto;
-    const user = await this.userRepo.findByEmail(email);
+    const user = await this.userRepo.findByEmail(email,{password:1,username:1,_id:1,isConfirmed:1});
     if (!user) throw new NotFoundException(`email not found`);
     if (!user.isConfirmed) {
       throw new BadRequestException(
@@ -98,7 +104,7 @@ export class AuthService {
     );
     return { message: 'Login successfully', data: { accessToken } };
   };
-  signupWithGoogle = async (idToken: string,res:Response) => {
+  signupWithGoogle = async (idToken: string, res: Response) => {
     if (!idToken) throw new BadRequestException('idToken is required');
     const payload = await this.oAuth2.verifyLoginGoogle(idToken);
     if (!payload.email_verified)
@@ -118,7 +124,10 @@ export class AuthService {
       provider: Provider.google,
       subId: payload.sub,
     });
-    const {accessToken}  =await this.TokenServices.generateTokens({ id: userCreated._id, username: userCreated.username }, res)
+    const { accessToken } = await this.TokenServices.generateTokens(
+      { id: userCreated._id, username: userCreated.username },
+      res,
+    );
     return { message: 'Login successfully', data: { accessToken } };
   };
 

@@ -3,7 +3,7 @@ import { Imessage } from '../Interfaces';
 import { HydratedDocument, Types } from 'mongoose';
 import { sender } from '../Enum';
 
-@Schema({ autoIndex: true, strict: true, strictQuery: true })
+@Schema({ autoIndex: true, strict: true, strictQuery: true,timestamps:true })
 export class Message implements Imessage {
   @Prop({ type: String, required: true })
   content!: string;
@@ -11,6 +11,8 @@ export class Message implements Imessage {
   conversationId!: Types.ObjectId;
   @Prop({ type: String, enum: sender, required: true })
   sendBy!: sender;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 const MessageSchema = SchemaFactory.createForClass(Message);
 export type MessageDocument = HydratedDocument<Message>;

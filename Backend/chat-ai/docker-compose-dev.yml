@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+  chatApp:
+    container_name: "chatBot-dev-con"
+    build: 
+      context: .
+      target: dev
+    env_file:
+      - '/config/dev.env'
+    ports:
+      -8000:3000
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy    
+        
+  mongo:
+    image: mongo:latest
+    container_name: mongo-con3
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+    healthcheck:                   
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:latest
+    container_name: redis-con3
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongo-data:
+  redis-data:
+
+networks:
+  app-network:
+    driver: bridge

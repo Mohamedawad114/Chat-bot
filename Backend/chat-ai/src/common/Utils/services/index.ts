@@ -5,7 +5,5 @@ export * from './mailService/mail.module';
 export * from './Jobs/email/email.module';
 export * from './Jobs/email/email.producer';
 export *from './oAuth2.service'
-export * from './Jobs/dbJobs/db.module';
-export * from './Jobs/dbJobs/db.producer';
 export * from './Jobs/AI/AI.job.module';
 export * from './Jobs/AI/AI.job.producer';
