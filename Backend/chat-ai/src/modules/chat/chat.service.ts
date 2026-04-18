@@ -41,12 +41,13 @@ export class ChatServices {
   };
   getChatHistory = async (
     conversationId: Types.ObjectId | string,
+    user: IUser,
     cursor?: string,
     limit: number = 10,
   ) => {
     const decodedCursor = decoderCursor(cursor);
-    const conversation = await this.conversationRepo.findByIdDocument(
-      conversationId,
+    const conversation = await this.conversationRepo.findDocuments(
+      { _id: conversationId, userId: user._id },
       { _id: 1 },
     );
     if (!conversation) throw new BadRequestException('conversation not found ');
@@ -71,7 +72,7 @@ export class ChatServices {
       },
     );
     if (!chatMessages.length) {
-      return { messages: [], meta: { nextCursor: null } };
+      return { data: [], meta: { nextCursor: null } };
     }
     const lastItem = chatMessages[chatMessages.length - 1];
     const nextCursor = encodedCursor({
@@ -106,7 +107,7 @@ export class ChatServices {
     return messages;
   };
   userChats = async (
-    userId: Types.ObjectId,
+    userId: string | Types.ObjectId,
     chatsFor: ChatFor,
     cursor?: string,
     limit: number = 10,
@@ -123,7 +124,7 @@ export class ChatServices {
       return chats;
     }
     const decodedCursor = decoderCursor(cursor);
-    const filter: any = { userId: userId };
+    const filter: any = { userId: String(userId) };
     if (decodedCursor) {
       filter.$or = [
         { createdAt: { $lt: decodedCursor.createdAt } },
@@ -139,9 +140,13 @@ export class ChatServices {
         _id: 1,
         conversationName: 1,
       },
-      { sort: { createdAt: -1 } },
+      {
+        sort: { createdAt: -1 },
+        limit: limit,
+      },
     );
-    if (!chats.length) {
+    console.log(chats);
+    if (chats.length == 0) {
       return { chats: [], meta: { nextCursor: null } };
     }
     const lastItem = chats[chats.length - 1];

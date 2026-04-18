@@ -37,7 +37,7 @@ export class AuthController {
   signup(@Body() data: signupDto) {
     return this.authServices.SignUp(data);
   }
-  @Post('signupGmail')
+  @Post('signup-Gmail')
   @ApiOperation({ summary: 'Create new account with email & password & phone' })
   @ApiBody({ type: String })
   @ApiResponse({ status: 201, description: 'signup successfully' })

@@ -115,10 +115,15 @@ export class chatGateway
   }
   onModuleInit() {
     const subscriber = redisSub.duplicate();
-    subscriber.subscribe('chat-chunk', 'reply-done', (err, count) => {
-      this.logger.info(`Subscribed to ${count} channels`);
-      if (err) this.logger.error(`Subscribe error: ${err}`);
-    });
+    subscriber.subscribe(
+      'chat-chunk',
+      'reply-done',
+      'conversationName',
+      (err, count) => {
+        this.logger.info(`Subscribed to ${count} channels`);
+        if (err) this.logger.error(`Subscribe error: ${err}`);
+      },
+    );
     subscriber.on('message', (channel, message) => {
       const data = JSON.parse(message);
       if (channel === 'chat-chunk') {
@@ -143,6 +148,13 @@ export class chatGateway
         }
         this.server.to(conversationId.toString()).emit('done', { fullReply });
       }
-    });
+      if (channel === 'conversationName') {
+        const { conversationName, conversationId,userId } = data;
+          this.server
+            .to(userId.toString())
+            .emit('new-conversation', { conversationId,conversationName });
+        }
+      })
+    };
   }
-}
+

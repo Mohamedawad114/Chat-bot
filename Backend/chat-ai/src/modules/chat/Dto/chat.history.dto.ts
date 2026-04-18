@@ -5,10 +5,13 @@ export class ChatHistory {
   @IsString()
   @IsOptional()
   cursor?: string;
-  @IsMongoId()
-  conversationId!: Types.ObjectId;
+
   @IsNumber()
   @IsPositive()
   @IsOptional()
   limit?: number;
+}
+export class MongoId {
+  @IsMongoId()
+  conversationId!: Types.ObjectId;
 }

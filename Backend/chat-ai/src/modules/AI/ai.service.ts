@@ -49,7 +49,7 @@ export class AIServices implements OnModuleInit {
         { role: 'user', content: firstMessage },
       ],
       temperature: 0.4,
-      max_completion_tokens:20
+      max_completion_tokens: 20,
     });
     return response.choices[0]?.message?.content || 'New Chat';
   }

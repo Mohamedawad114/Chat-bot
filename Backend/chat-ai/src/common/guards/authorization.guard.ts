@@ -11,7 +11,7 @@ export class AuthorizationGuard implements CanActivate {
     const type = context.getType();
     let user: IUser;
     if (type === 'http') user = context.switchToHttp().getRequest().user;
-    if (type === 'ws') user = context.switchToWs().getClient().data.user;
+   else if (type === 'ws') user = context.switchToWs().getClient().data.user;
     else return false;
     const allowedRoles = this.reflector.getAllAndOverride<string[]>('roles', [
       context.getHandler(),

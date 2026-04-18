@@ -36,6 +36,14 @@ export class AIChatProcessor extends WorkerHost {
         conversationName: name,
         userId: userId,
       });
+      await redisPub.publish(
+        'conversationName',
+        JSON.stringify({
+          conversationName: conversation.conversationName,
+          conversationId: conversation._id,
+          userId: userId,
+        }),
+      );
       convId = conversation._id;
       await this.messageRepo.create({
         conversationId: convId,
@@ -51,25 +59,25 @@ export class AIChatProcessor extends WorkerHost {
         content: content,
       },
     ];
-   const fullReply = await this.aiServices.generateStream(
-     messages,
-     async (chunk) => {
-       await redisPub.publish(
-         'chat-chunk',
-         JSON.stringify({ conversationId: convId, userId, chunk, isNew }),
-       );
-     },
-   );
+    const fullReply = await this.aiServices.generateStream(
+      messages,
+      async (chunk) => {
+        await redisPub.publish(
+          'chat-chunk',
+          JSON.stringify({ conversationId: convId, userId, chunk, isNew }),
+        );
+      },
+    );
 
-   await this.messageRepo.create({
-     conversationId: convId,
-     sendBy: sender.assistant,
-     content: fullReply,
-   });
-   await redis.del(redisKeys.chatHistory(convId)); 
-   await redisPub.publish(
-     'reply-done',
-     JSON.stringify({ userId, conversationId: convId, fullReply, isNew }),
+    await this.messageRepo.create({
+      conversationId: convId,
+      sendBy: sender.assistant,
+      content: fullReply,
+    });
+    await redis.del(redisKeys.chatHistory(convId));
+    await redisPub.publish(
+      'reply-done',
+      JSON.stringify({ userId, conversationId: convId, fullReply, isNew }),
     );
   }
 
