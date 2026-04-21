@@ -12,7 +12,10 @@ export class User implements IUser {
   email!: string;
   @Prop({ type: Date, required: false })
   dateBirth!: Date;
-  @Prop({ type: String, enum: Gender, required: true })
+  @Prop({ type: String, enum: Gender, required: function (this: User) {
+      return this.provider === Provider.system;
+    }
+  })
   gender!: Gender;
   @Prop({
     type: String,

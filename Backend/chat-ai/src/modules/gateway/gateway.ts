@@ -15,6 +15,7 @@ import {
   AIChatProducer,
   Auth,
   ChatFor,
+  ConversationDocument,
   Iconversation,
   redis,
   redisKeys,
@@ -71,14 +72,12 @@ export class chatGateway
       await redis.sadd(redisKeys.socketKey(user.id.toString()), client.id);
       this.logger.info(`Client connected: ${client.id}`);
       client.join(user._id.toString());
-      const conversations = await this.chatServices.userChats(
+      const result = await this.chatServices.userChats(
         user._id,
         ChatFor.socket,
       );
-      const convs = Array.isArray(conversations)
-        ? conversations
-        : conversations.chats || [];
-      convs.forEach((conv: Iconversation) => {
+      const chats = Array.isArray(result) ? result : result?.data || [];
+      chats.forEach((conv: Iconversation) => {
         client.join((conv._id as unknown as string).toString());
       });
     } catch (error: unknown) {
@@ -149,12 +148,11 @@ export class chatGateway
         this.server.to(conversationId.toString()).emit('done', { fullReply });
       }
       if (channel === 'conversationName') {
-        const { conversationName, conversationId,userId } = data;
-          this.server
-            .to(userId.toString())
-            .emit('new-conversation', { conversationId,conversationName });
-        }
-      })
-    };
+        const { conversationName, conversationId, userId } = data;
+        this.server
+          .to(userId.toString())
+          .emit('new-conversation', { conversationId, conversationName });
+      }
+    });
   }
-
+}

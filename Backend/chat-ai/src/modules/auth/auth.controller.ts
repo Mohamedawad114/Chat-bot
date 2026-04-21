@@ -43,7 +43,7 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'signup successfully' })
   @ApiResponse({ status: 404, description: 'company not found' })
   @ApiResponse({ status: 400, description: 'validation error' })
-async  signupGmail(@Body() idToken: string,@Res()res:Response) {
+  async signupGmail(@Body('idToken') idToken: string, @Res({passthrough:true}) res: Response) {
     return await this.authServices.signupWithGoogle(idToken,res);
   }
 

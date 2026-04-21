@@ -83,7 +83,12 @@ export class AuthService {
 
   loginUser = async (Dto: LoginDto, res: Response) => {
     const { email, password } = Dto;
-    const user = await this.userRepo.findByEmail(email,{password:1,username:1,_id:1,isConfirmed:1});
+    const user = await this.userRepo.findByEmail(email, {
+      password: 1,
+      username: 1,
+      _id: 1,
+      isConfirmed: 1,
+    });
     if (!user) throw new NotFoundException(`email not found`);
     if (!user.isConfirmed) {
       throw new BadRequestException(
@@ -109,28 +114,27 @@ export class AuthService {
     const payload = await this.oAuth2.verifyLoginGoogle(idToken);
     if (!payload.email_verified)
       throw new BadRequestException('email must be verified');
-    const userIsExist = await this.userRepo.findByEmail(payload.email);
-    if (userIsExist) {
-      const accessToken = this.TokenServices.generateAccessToken({
-        id: userIsExist._id,
-        username: userIsExist.username,
+    let user = await this.userRepo.findByEmail(payload.email);
+    let isNewUser = false;
+    if (!user) {
+      user = await this.userRepo.create({
+        email: payload.email,
+        username: payload.name,
+        isConfirmed: payload.email_verified,
+        provider: Provider.google,
+        subId: payload.sub,
       });
-      return { message: 'Login successfully', data: { accessToken } };
+      isNewUser = true;
     }
-    const userCreated = await this.userRepo.create({
-      email: payload.email,
-      username: payload.name,
-      isConfirmed: payload.email_verified,
-      provider: Provider.google,
-      subId: payload.sub,
-    });
-    const { accessToken } = await this.TokenServices.generateTokens(
-      { id: userCreated._id, username: userCreated.username },
+    const tokens = await this.TokenServices.generateTokens(
+      { id: user._id, username: user.username },
       res,
     );
-    return { message: 'Login successfully', data: { accessToken } };
+    return {
+      message: isNewUser ? 'Signup successfully' : 'Login successfully',
+      data: { accessToken: tokens.accessToken },
+    };
   };
-
   refreshToken = async (req: Request, res: Response) => {
     const token = req.cookies.refreshToken;
     if (!token) throw new UnauthorizedException();

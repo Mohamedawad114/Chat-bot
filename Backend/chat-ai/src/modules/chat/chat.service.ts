@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   ChatFor,
+  ConversationDocument,
   ConversionRepository,
   IUser,
   MessageRepository,
@@ -121,10 +122,10 @@ export class ChatServices {
           _id: 1,
         },
       );
-      return chats;
+      return chats as ConversationDocument[];
     }
     const decodedCursor = decoderCursor(cursor);
-    const filter: any = { userId: String(userId) };
+    const filter: any = { userId: userId };
     if (decodedCursor) {
       filter.$or = [
         { createdAt: { $lt: decodedCursor.createdAt } },
@@ -139,15 +140,15 @@ export class ChatServices {
       {
         _id: 1,
         conversationName: 1,
+        createdAt: 1,
       },
       {
         sort: { createdAt: -1 },
         limit: limit,
       },
     );
-    console.log(chats);
     if (chats.length == 0) {
-      return { chats: [], meta: { nextCursor: null } };
+      return { data: [], meta: { nextCursor: null } };
     }
     const lastItem = chats[chats.length - 1];
     const nextCursor = encodedCursor({

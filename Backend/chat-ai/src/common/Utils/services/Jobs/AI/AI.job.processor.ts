@@ -6,9 +6,9 @@ import {
   MessageRepository,
 } from 'src/common/Repositories';
 import { AIServices } from 'src/modules/AI/ai.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { sender } from 'src/common/Enum';
 import { redis, redisKeys, redisPub } from '../../redis';
+import { Types } from 'mongoose';
 
 @Processor('AIChat', {
   limiter: {
@@ -34,7 +34,7 @@ export class AIChatProcessor extends WorkerHost {
       const name = await this.aiServices.generateConversationName(content);
       const conversation = await this.conversationRepo.create({
         conversationName: name,
-        userId: userId,
+        userId: new Types.ObjectId(userId),
       });
       await redisPub.publish(
         'conversationName',
@@ -44,7 +44,7 @@ export class AIChatProcessor extends WorkerHost {
           userId: userId,
         }),
       );
-      convId = conversation._id;
+      convId = new Types.ObjectId(conversation._id);
       await this.messageRepo.create({
         conversationId: convId,
         sendBy: sender.user,

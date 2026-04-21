@@ -1,39 +1,50 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  DefaultValuePipe,
+  Get,
+  Param,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { ChatServices } from './chat.service';
-import { Auth, AuthUser,ChatFor,type IUser, Sys_Role } from 'src/common';
-import { ChatHistory, MongoId } from './Dto/chat.history.dto';
+import { Auth, AuthUser, ChatFor, type IUser, Sys_Role } from 'src/common';
+import { MongoId } from './Dto/chat.history.dto';
 import { Types } from 'mongoose';
+import { PinoLogger } from 'nestjs-pino';
 
 @Auth(Sys_Role.user)
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatServices: ChatServices) {}
+  constructor(
+    private readonly chatServices: ChatServices,
+    private logger: PinoLogger,
+  ) {}
 
   @Get('conversations')
   async getUserChats(
-    @AuthUser()user:IUser,
-    @Query() query: ChatHistory,
+    @AuthUser() user: IUser,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('cursor') cursor: string,
   ) {
-    const { cursor, limit } = query;
     return await this.chatServices.userChats(
-   user._id as unknown as string,
+      new Types.ObjectId(user._id),
       ChatFor.request,
       cursor,
-      limit ? Number(limit) : 10,
+      limit,
     );
   }
   @Get(':conversationId/history')
   async getChatHistory(
-    @AuthUser()user:IUser,
+    @AuthUser() user: IUser,
     @Param() data: MongoId,
-    @Query() query: ChatHistory,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('cursor') cursor: string,
   ) {
-    const { cursor, limit } = query;
     return await this.chatServices.getChatHistory(
       data.conversationId,
       user,
       cursor,
-      limit ? Number(limit) : 10,
+      limit,
     );
   }
 }

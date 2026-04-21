@@ -43,7 +43,7 @@ export class signupDto implements Partial<IUser> {
   @Length(8, 64)
   @IsNotEmpty()
   @Matches(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?.&-])[A-Za-z\d@$!%?.&-]{8,}$/,
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?.&_\-#])[A-Za-z\d@$!%?.&_\-#]{8,}$/,
     {
       message:
         'Password must be at least 8 characters long and include uppercase, lowercase, number and special character',
