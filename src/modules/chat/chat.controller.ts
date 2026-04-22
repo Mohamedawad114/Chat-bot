@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { ChatServices } from './chat.service';
 import { Auth, AuthUser, ChatFor, type IUser, Sys_Role } from 'src/common';
-import { MongoId } from './Dto/chat.history.dto';
 import { Types } from 'mongoose';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -36,12 +35,12 @@ export class ChatController {
   @Get(':conversationId/history')
   async getChatHistory(
     @AuthUser() user: IUser,
-    @Param() data: MongoId,
+    @Param('conversationId')conversationId: Types.ObjectId,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('cursor') cursor: string,
   ) {
     return await this.chatServices.getChatHistory(
-      data.conversationId,
+     new Types.ObjectId( conversationId),
       user,
       cursor,
       limit,

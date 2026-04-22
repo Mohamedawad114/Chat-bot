@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { redis, redisKeys, TokenServices } from '../Utils/services';
@@ -23,7 +24,16 @@ export class AuthGuard implements CanActivate {
         if (!authHeader) return false;
         const token = authHeader.split(' ')[1];
         if (!token) return false;
-        const decoded = this.tokenService.VerifyAccessToken(token);
+        let decoded;
+        try {
+          decoded = this.tokenService.VerifyAccessToken(token);
+          request.user = decoded;
+        } catch (error: any) {
+          if (error.name === 'TokenExpiredError') {
+            throw new UnauthorizedException('Token expired');
+          }
+          throw new UnauthorizedException('Invalid token');
+        }
         const isBlacklisted = await redis.get(redisKeys.token_blackList(token));
         if (isBlacklisted) return false;
         const user = await this.userRepo.findByIdDocument(decoded.id);

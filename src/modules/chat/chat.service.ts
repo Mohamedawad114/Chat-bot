@@ -53,7 +53,7 @@ export class ChatServices {
     );
     if (!conversation) throw new BadRequestException('conversation not found ');
     const filter: any = {
-      conversationId: new Types.ObjectId(conversationId),
+      conversationId: conversationId,
     };
     if (decodedCursor) {
       filter.$or = [
