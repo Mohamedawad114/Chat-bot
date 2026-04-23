@@ -10,17 +10,18 @@ COPY . .
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["npm", "run", "start:dev"]
 
-FROM base as build 
+FROM base as builder
 
 ENV NODE_ENV=development
 RUN npm ci
 COPY . .
-
 RUN npm run build
-FROM base AS prod
 
-ENV NODE_ENV=production \
-    PORT=3000
+FROM node:22-alpine3.19 AS prod
+
+RUN apk add --no-cache tini
+WORKDIR /app
+ENV NODE_ENV=production PORT=3000
 
 COPY --from=builder /app/package*.json ./
 RUN npm ci --omit=dev
