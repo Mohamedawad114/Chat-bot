@@ -17,15 +17,13 @@ async function bootstrap() {
 );
 app.use(cookieParser());
 
-app.use(
-  cors({
+app.enableCors({
     origin: [
       'http://localhost:5173',
-      'https://chat-ai-lilac-mu.vercel.app/',
+      'https://chat-ai-lilac-mu.vercel.app',
     ],
     credentials: true,
   }),
-);
   app.setGlobalPrefix('api')
   await app.listen(process.env.PORT ?? 3000);
 }
