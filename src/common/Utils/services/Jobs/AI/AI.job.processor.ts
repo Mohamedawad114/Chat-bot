@@ -28,7 +28,7 @@ export class AIChatProcessor extends WorkerHost {
 
   async process(job: Job) {
     const { userId, content, conversationId, chatMessage } = job.data;
-    let convId = conversationId;
+    let convId = new Types.ObjectId(conversationId);
     let isNew = false;
     if (!conversationId) {
       const name = await this.aiServices.generateConversationName(content);
@@ -74,7 +74,7 @@ export class AIChatProcessor extends WorkerHost {
       sendBy: sender.assistant,
       content: fullReply,
     });
-    await redis.del(redisKeys.chatHistory(convId));
+    await redis.del(redisKeys.chatHistory(convId.toString()));
     await redisPub.publish(
       'reply-done',
       JSON.stringify({ userId, conversationId: convId, fullReply, isNew }),
