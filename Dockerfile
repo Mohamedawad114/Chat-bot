@@ -40,4 +40,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
 ENTRYPOINT ["/sbin/tini", "--"]
 
 
-CMD [ "node ","dist/main.js"]
+CMD [ "node","dist/main.js"]
