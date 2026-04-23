@@ -6,33 +6,39 @@ import { HashingService } from '../../Hashing/hash.service';
 import { redis, redisKeys } from '../redis';
 import { PinoLogger } from 'nestjs-pino';
 import { emailType } from 'src/common/Enum';
-import { Resend } from 'resend';
+import * as nodemailer from 'nodemailer';
 
 const createOTP = customAlphabet(`0123456789zxcvbnmalksjdhfgqwretruop`, 6);
 
 @Injectable()
 export class EmailServices implements IEmailData {
-  private resend: Resend;
-  private fromEmail: string;
+  private transporter: nodemailer.Transporter;
 
   constructor(
     private readonly hashService: HashingService,
     private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
   ) {
-    this.resend = new Resend(this.configService.get<string>('RESEND_API_KEY'));
-    this.fromEmail = 'onboarding@resend.dev'; 
+    this.transporter = nodemailer.createTransport({
+      host: 'smtp-relay.brevo.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: this.configService.get<string>('BREVO_USER'),
+        pass: this.configService.get<string>('BREVO_API_KEY'),
+      },
+    });
   }
 
   sendEmail = async (to: string, subject: string, html: string) => {
     try {
-      const info = await this.resend.emails.send({
-        from: this.fromEmail,
+      const info = await this.transporter.sendMail({
+        from: `"ChatAI" <${this.configService.get<string>('BREVO_USER')}>`,
         to,
         subject,
         html,
       });
-      this.logger.info(info);
+      this.logger.info(info.response);
     } catch (error) {
       this.logger.error(error);
     }
