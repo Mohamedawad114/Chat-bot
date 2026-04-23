@@ -11,12 +11,10 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true}));
   app.use(
   helmet({
-    crossOriginOpenerPolicy: false, // مهم لـ Google OAuth
+    crossOriginOpenerPolicy: false, 
   }),
+    hpp()
 );
-
-app.use(hpp());
-
 app.use(cookieParser());
 
 app.use(
