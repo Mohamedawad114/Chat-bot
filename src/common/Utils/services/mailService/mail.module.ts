@@ -12,8 +12,8 @@ import { HashingService } from '../../Hashing/hash.service';
       useFactory: (configService: ConfigService) => ({
         transport: {
           host: 'smtp.gmail.com',
-          port: 465,
-          secure: true,
+          port: 587,
+          secure: false,
           auth: {
             user: configService.get<string>('APP_GMAIL'),
             pass: configService.get<string>('APP_PASSWORD'),

@@ -15,7 +15,6 @@ import {
   AIChatProducer,
   Auth,
   ChatFor,
-  ConversationDocument,
   Iconversation,
   redis,
   redisKeys,
@@ -30,7 +29,14 @@ import { MessageDto } from '../chat/Dto/message.dto';
 import { OnModuleInit } from '@nestjs/common';
 
 @Auth(Sys_Role.user)
-@WebSocketGateway({ cors: { origin: '*' }, namespace: '/chat' })
+@WebSocketGateway({
+  namespace: '/chat',
+  cors: {
+    origin: 'https://chat-ai-lilac-mu.vercel.app',
+    credentials: true,
+  },
+  transports: ['websocket', 'polling'],
+})
 export class chatGateway
   implements
     OnGatewayConnection,
