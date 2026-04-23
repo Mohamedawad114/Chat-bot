@@ -132,7 +132,7 @@ export class AuthService {
     );
     return {
       message: isNewUser ? 'Signup successfully' : 'Login successfully',
-      data: { accessToken: tokens.accessToken },
+      data: { accessToken: tokens.accessToken, email: user.email },
     };
   };
   refreshToken = async (req: Request, res: Response) => {

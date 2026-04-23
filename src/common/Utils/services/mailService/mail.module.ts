@@ -13,6 +13,7 @@ import { HashingService } from '../../Hashing/hash.service';
         transport: {
           host: 'smtp.gmail.com',
           port: 587,
+          family: 4,
           secure: false,
           auth: {
             user: configService.get<string>('APP_GMAIL'),
