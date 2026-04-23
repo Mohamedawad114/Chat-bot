@@ -16,7 +16,6 @@ import {
   ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-
 import { AuthService } from './auth.service';
 import type { Request, Response } from 'express';
 

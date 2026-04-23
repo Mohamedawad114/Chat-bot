@@ -1,6 +1,5 @@
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Iconversation } from '../Interfaces';
-
 import { HydratedDocument, Types } from 'mongoose';
 
 @Schema({ autoIndex: true, strict: true, strictQuery: true, timestamps: true })

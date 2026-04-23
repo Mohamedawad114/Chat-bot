@@ -1,14 +1,14 @@
 FROM node:22-alpine3.19 as base
 RUN apk add --no-cache tini
 WORKDIR /app
-COPY package*.json. /
+COPY package*.json ./
 
 FROM base as dev
 ENV NODE_ENV=development
-RUN run npm i
+RUN  npm i
 COPY . . 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["run", "npm", "start:dev"]
+CMD ["npm", "run", "start:dev"]
 
 FROM base as build 
 
